@@ -1,0 +1,26 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: physics-admission-controller
+  annotations:
+    service.beta.openshift.io/inject-cabundle: "true"
+  labels:
+    app: physics-admission-controller
+webhooks:
+  - name: physics-admission-controller.openshift.io
+    failurePolicy: Ignore
+    sideEffects: None
+    admissionReviewVersions: ['v1', 'v1beta1']
+    clientConfig:
+      service:
+        name: physics-admission-controller
+        namespace: physics-infa
+        path: "/"
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: [""]
+        apiVersions: ["*"]
+        resources: ["pods"]
+    namespaceSelector:
+      matchLabels:
+        physics-webhook: enabled
