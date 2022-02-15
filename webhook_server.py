@@ -37,7 +37,7 @@ def webhook():
         app.config['scheduler_label'])
     if scheduler_name:
         print("IT HAS AN SCHEDULER NAME")
-        mod['spec'].append({'schedulerName': scheduler_name})
+        mod['spec']['schedulerName'] = scheduler_name
 
         patch = jsonpatch.JsonPatch.from_diff(obj, mod)
         patch_str = base64.b64encode(str(patch).encode()).decode()
