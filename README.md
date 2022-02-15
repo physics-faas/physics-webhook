@@ -11,17 +11,25 @@ podman build -t docker.io/luis5tb/physics-webhook .
 podman push docker.io/luis5tb/physics-webhook
 ```
 
-* Run ssl.sh script to generate the tls certs. Adapt the APP and NAMESPACE vars
-  as needed
-
+* Create the CA and certificates
 ```
-./ssl.sh
+openssl req -nodes -new -x509 -keyout ca.key -out ca.crt -subj "/CN=Admission Controller Webhook PHYSICS CA"
+
+openssl genrsa -out webhook-server-tls.key 2048
+
+openssl req -new -key webhook-server-tls.key -subj "/CN=physics-admission-controller.physics-infra.svc" | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial -out webhook-server-tls.crt
 ```
 
 * Create the TLS secret or copy the information into the 002-webhook-secret.yaml
 ```
-kubectl create secret tls ${APP}-secret --key=${APP}.key --cert=${APP}.pem
---dry-run=client -o yaml | kubectl apply -f -
+kubectl create secret tls physics-admission-controller-secret --key=webhook-server-tls.key --cert=webhook-server-tls.crt
+```
+
+* Add the caBundle to the MutatingWebHookConfiguration
+```
+cat ca.crt | base64
+(copy output)
+vi 004-webhook.yaml (replace ADD_CA_BUNDLE with the copied base64 ca.crt)
 ```
 
 * Create the resources:

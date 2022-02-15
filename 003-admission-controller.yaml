@@ -48,7 +48,7 @@ spec:
       volumes:
       - name: webhook-certs
         secret:
-          secretName: physics-webhook-secret
+          secretName: physics-admission-controller-secret
       tolerations:
       - key: "node-role.kubernetes.io/master"
         operator: Exists
