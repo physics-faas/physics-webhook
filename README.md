@@ -1,7 +1,7 @@
 # physics-webhook
 Webhook for the PHYSICS EU project
 
-## How to use
+## How to deploy it
 
 * First build the image of the webhook (or use the one I already created at
   docker.io/luis5tb/physics-webhook) and push it to your repo:
@@ -41,3 +41,54 @@ previous step)
 kubectl apply -f 003-admission-controller.yaml
 kubectl apply -f 004-webhook.yaml
 ```
+
+## How to use it
+
+To make it less intrussive, the webhook only applies to pods created in certain
+namespaces. This namespaces must be labelled with the label stated at the
+namespaceSelector on 004-webhook.yaml. If not modified, `physics-webhook:
+enabled`.
+
+So, to make the webhook to apply in the pods created in a certain namespace you
+need to edit it and add that label.
+
+```
+oc edit namespace NAMESPACE_NAME
+```
+
+Once that is done, you need to state in the pods what scheduler to use, if
+different from the default. This is done by adding an specific annotation:
+
+* With the key speficied at the 003-admission-controller when starting the
+  webhook_sever, by default `physics-scheduler` (option
+  `--scheduler-label=physics-scheduler`)
+
+* With the value of the scheduler to use. For instance, if the scheduler name is
+  `energy-aware`, the pod must be annotated as:
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    *physics-scheduler: energy*
+  labels:
+    run: test
+  name: test
+  namespace: physics-infra
+spec:
+  containers:
+  - image: kuryr/demo
+    imagePullPolicy: Always
+    name: test
+```
+
+Then, you can simply create your pod as check the schedulerName is set
+accordingly:
+
+```
+kubectl create -f pod.yaml
+kubectl get pod test -o yaml | grep schedulerName
+  schedulerName: energy-aware
+```
+
