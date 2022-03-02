@@ -26,7 +26,6 @@ app = Flask(__name__)
 
 @app.route('/', methods=['POST'])
 def webhook():
-    print("EXECUTING WEBHOOK")
     request_info = request.json
     obj = request_info['request']['object']
     mod = copy.deepcopy(obj)
@@ -36,7 +35,6 @@ def webhook():
     scheduler_name = mod['metadata']['annotations'].get(
         app.config['scheduler_label'])
     if scheduler_name:
-        print("IT HAS AN SCHEDULER NAME")
         mod['spec']['schedulerName'] = scheduler_name
 
         patch = jsonpatch.JsonPatch.from_diff(obj, mod)
@@ -52,7 +50,6 @@ def webhook():
     }
 
     if patch_str:
-        print("ADDING THE PATCH INFORMATION")
         admission_review['response'].update({
             'patch': patch_str,
             'patchType': 'JSONPatch',
