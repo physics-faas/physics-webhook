@@ -20,9 +20,15 @@ openssl genrsa -out webhook-server-tls.key 2048
 openssl req -new -key webhook-server-tls.key -subj "/CN=physics-admission-controller.physics-infra.svc" | openssl x509 -req -CA ca.crt -CAkey ca.key -CAcreateserial -out webhook-server-tls.crt
 ```
 
+* Create the physics-admin namespace
+
+```
+kubectl create namespace physics-infra
+```
+
 * Create the TLS secret or copy the information into the 002-webhook-secret.yaml
 ```
-kubectl create secret tls physics-admission-controller-secret --key=webhook-server-tls.key --cert=webhook-server-tls.crt
+kubectl create secret tls physics-admission-controller-secret --key=webhook-server-tls.key --cert=webhook-server-tls.crt -n physics-infra
 ```
 
 * Add the caBundle to the MutatingWebHookConfiguration
