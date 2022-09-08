@@ -32,13 +32,14 @@ def webhook():
 
     patch_str = ""
 
-    scheduler_name = mod['metadata']['annotations'].get(
-        app.config['scheduler_label'])
-    if scheduler_name:
-        mod['spec']['schedulerName'] = scheduler_name
-
-        patch = jsonpatch.JsonPatch.from_diff(obj, mod)
-        patch_str = base64.b64encode(str(patch).encode()).decode()
+    scheduler_name = app.config(['scheduler_name'])
+    if mod['metadata'].get('annotations'):
+        if mod['metadata']['annotations'].get(app.config['scheduler_label']):
+            scheduler_name = mod['metadata']['annotations'].get(
+                app.config['scheduler_label'])
+    mod['spec']['schedulerName'] = scheduler_name
+    patch = jsonpatch.JsonPatch.from_diff(obj, mod)
+    patch_str = base64.b64encode(str(patch).encode()).decode()
 
     admission_review = {
         'apiVersion': request_info['apiVersion'],
@@ -76,9 +77,13 @@ def main():
     parser.add_argument(
         '--scheduler-label', default='physics-scheduler',
         help='Label used to point out the scheduler to use.')
+    parser.add_argument(
+        '--scheduler-name', default='llocality-scheduler',
+        help='Default scheduler to use in case no annoations are provided.')
     args = parser.parse_args()
 
     app.config['scheduler_label'] = args.scheduler_label
+    app.config['scheduler_name'] = args.scheduler_name
     app.run(host=args.bind_address, port=args.port,
             ssl_context=(args.tls_cert_file, args.tls_private_key_file))
 

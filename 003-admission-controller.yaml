@@ -34,6 +34,7 @@ spec:
         - --tls-private-key-file=/etc/webhook/tls.key
         - --tls-cert-file=/etc/webhook/tls.crt
         - --scheduler-label=physics-scheduler
+        - --scheduler-name=llocality-scheduler
         volumeMounts:
         - name: webhook-certs
           mountPath: /etc/webhook
