@@ -32,7 +32,7 @@ def webhook():
 
     patch_str = ""
 
-    scheduler_name = app.config(['scheduler_name'])
+    scheduler_name = app.config['scheduler_name']
     if mod['metadata'].get('annotations'):
         if mod['metadata']['annotations'].get(app.config['scheduler_label']):
             scheduler_name = mod['metadata']['annotations'].get(
